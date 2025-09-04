@@ -1,0 +1,24 @@
+[aws]
+ec2-0-0-0-0.eu-north-1.compute.amazonaws.com   # Example AWS EC2 hostname
+0.0.0.0                                       # Example IP address (replace with real one)
+
+# Both hostname and IP can be used for connecting to instances.
+
+[aws:vars]
+ansible_ssh_private_key_file=~/.ssh/id_rsa     # SSH private key path (⚠️ don’t hardcode in production)
+ansible_user=ubuntu                            # Default AWS EC2 user (depends on AMI)
+ansible_python_interpreter=/usr/bin/python3    # Python path on the remote machine
+
+#### Try not to use these as defaults (set them per-playbook if possible)
+ansible_become=true
+ansible_become_method=sudo
+ansible_become_user=root
+
+
+[docker_server]
+0.0.0.0                                       # Example Docker server address (replace with real one)
+
+[docker_server:vars]
+ansible_ssh_private_key_file=~/.ssh/id_rsa     # SSH key for docker host
+ansible_user=ec2-user                         # Default user for Amazon Linux
+ansible_python_interpreter=/usr/bin/python3   # Python path on the docker server

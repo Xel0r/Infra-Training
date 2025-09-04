@@ -1,0 +1,34 @@
+version: '3.9'
+
+services:
+  frontend:
+    image: docker_user/frontend:v9-28
+    ports:
+      - "3000:3000"
+    environment:
+      PORT: "3000"
+      #TODO_BACKEND_URL: "http://todobackend:3001"   Placeholder
+      IMAGE_FETCHER_URL: "http://imagefetcher:3002"
+    volumes:
+      - shared-volume:/shared
+    depends_on:
+      - imagefetcher
+    networks:
+      - appnet
+
+  imagefetcher:
+    image: docker_user/image_fetcher:v6
+    environment:
+      PORT: "3002"
+    ports:
+      - "3002:3002"
+    volumes:
+      - shared-volume:/shared
+    networks:
+      - appnet
+
+volumes:
+  shared-volume:
+
+networks:
+  appnet:

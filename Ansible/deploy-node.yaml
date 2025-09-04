@@ -1,0 +1,64 @@
+---
+- name: Install node and npm
+  hosts: aws
+  tasks:
+    - name: Update apt repo and cache
+      apt: update_cache=yes force_apt_get=yes cache_valid_time=3600
+      become: true
+    - name: Install nodejs and npm
+      apt:
+        pkg:
+          - nodejs
+          - npm
+      become: true
+
+# - name: create new user
+#   hosts: aws
+#   tasks:
+#     - name: create linux user
+#       user:
+#         name: admin
+#         comment: admin user
+#         group: admin
+#         create_home: yes
+#       register: user_creation_result
+#       become: True
+#       - debug: msg={{user_creation_result}}
+
+
+
+- name: Deploy nodejs app
+  hosts: aws
+  vars_files:
+    - deploy-node-vars
+  # become: True
+  # become_method: sudo
+  # become_user: admin
+  # gather_facts: false
+  tasks:
+    - name: copy tar file to server
+      copy:
+        src: "{{location}}/bootcamp-node-project-{{version}}.tgz"
+        dest: /home/ubuntu/app-1.0.0.tgz 
+    - name: Unpack the nodejs file
+      unarchive: 
+        src: /home/ubuntu/app-1.0.0.tgz
+        dest: /home/ubuntu/
+        remote_src: yes   #to look for the file in remote server
+    - name: install dependencies
+      npm:
+        path: /home/ubuntu/package
+    - name: Start the application
+      command: 
+        chdir: /home/ubuntu/package
+        cmd: node server
+      # we need to run the application  in the background
+      async: 1000
+      poll: 0
+
+    - name: Ensure app is running
+      shell: ps aux | grep node
+      register: app_status
+    
+    - debug: msg={{app_status.stdout_lines}}
+    
